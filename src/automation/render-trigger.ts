@@ -37,6 +37,8 @@ interface RenderOptions {
   waveformStyle?: "mirror" | "bars" | "circle" | "line";
   uploadToYouTube?: boolean;
   addToQueue?: boolean;
+  showSlug?: string;
+  episodeArtPath?: string;
 }
 
 /**
@@ -81,7 +83,21 @@ async function renderDirect(
   const fps = 30;
   const durationInFrames = Math.ceil(durationSeconds * fps);
 
-  const composition = options.type === "episode" ? "FullEpisode" : "SocialClip";
+  let composition: string;
+  if (options.showSlug) {
+    // Show-specific template compositions use the pattern: <SHOW>-<Orientation>
+    const showPrefix = options.showSlug
+      .split("-")
+      .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+      .join("");
+    composition =
+      options.type === "episode"
+        ? `${showPrefix}-Horizontal`
+        : `${showPrefix}-Vertical`;
+  } else {
+    composition =
+      options.type === "episode" ? "FullEpisode" : "SocialClip";
+  }
   const timestamp = new Date().toISOString().slice(0, 10);
   const safeName = options.guestName.replace(/[^a-zA-Z0-9]/g, "-");
 
@@ -112,6 +128,9 @@ async function renderDirect(
   if (options.hookText) props.hookText = options.hookText;
   if (options.colorScheme) props.colorScheme = options.colorScheme;
   if (options.waveformStyle) props.waveformStyle = options.waveformStyle;
+  if (options.episodeArtPath) {
+    props.episodeArtSrc = path.resolve(options.episodeArtPath);
+  }
 
   console.log("\n" + "═".repeat(60));
   console.log("Audiogram Tools - Video Render");
@@ -173,6 +192,8 @@ Options:
   --waveform <type> Waveform style: mirror, bars, circle, line
   --upload          Upload to YouTube after render
   --queue           Add to queue instead of immediate render
+  --show <slug>     Use show-specific template (e.g. wonder-cabinet)
+  --art <path>      Episode art image path (for template compositions)
 
 Examples:
   npx ts-node render-trigger.ts audio.mp3 --guest "Jane Doe" --ep 42 --title "The Big Idea"
@@ -228,6 +249,12 @@ Examples:
         break;
       case "--queue":
         options.addToQueue = true;
+        break;
+      case "--show":
+        options.showSlug = args[++i];
+        break;
+      case "--art":
+        options.episodeArtPath = args[++i];
         break;
     }
   }
