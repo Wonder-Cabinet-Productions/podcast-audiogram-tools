@@ -1,12 +1,12 @@
 import React from "react";
-import { AbsoluteFill, useVideoConfig } from "remotion";
+import { AbsoluteFill, staticFile, useVideoConfig } from "remotion";
 
 interface CabinetFrameProps {
   /** Filename of the cabinet silhouette asset (unused — we use SVG path) */
   asset: string;
   /** Whether to clip episode art inside the cabinet body */
   artClip?: boolean;
-  /** Path to episode art image (3-panel collage) */
+  /** Episode art filename in public/ directory (resolved via staticFile) */
   episodeArtSrc?: string;
 }
 
@@ -82,7 +82,7 @@ export const CabinetFrame: React.FC<CabinetFrameProps> = ({
         {artClip && episodeArtSrc && (
           <g clipPath="url(#cabinetBodyClip)">
             <image
-              href={episodeArtSrc}
+              href={staticFile(episodeArtSrc)}
               x={artX}
               y={artY}
               width={artWidth}

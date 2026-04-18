@@ -133,7 +133,11 @@ async function renderDirect(
   if (options.colorScheme) props.colorScheme = options.colorScheme;
   if (options.waveformStyle) props.waveformStyle = options.waveformStyle;
   if (options.episodeArtPath) {
-    props.episodeArtSrc = path.resolve(options.episodeArtPath);
+    // Copy art to public/ so Remotion can serve it via staticFile()
+    const artFilename = `episode-art-${Date.now()}${path.extname(options.episodeArtPath)}`;
+    const artDest = path.join(__dirname, "../../public", artFilename);
+    fs.copyFileSync(path.resolve(options.episodeArtPath), artDest);
+    props.episodeArtSrc = artFilename;
   }
 
   console.log("\n" + "═".repeat(60));
