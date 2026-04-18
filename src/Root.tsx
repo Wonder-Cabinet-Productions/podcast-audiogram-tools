@@ -5,6 +5,7 @@ import { FullEpisode } from "./components/FullEpisode";
 import { SocialClip } from "./components/SocialClip";
 import { OriginalTemplate } from "./components/OriginalTemplate";
 import { Thumbnail } from "./components/Thumbnail";
+import { ShowTemplate, ShowTemplateProps } from "./template/ShowTemplate";
 import "./fonts.css";
 
 // Schema definitions for type-safe props
@@ -63,6 +64,40 @@ const originalTemplateSchema = z.object({
 const originalTemplateDefaultProps = {
   audioSrc: staticFile("WC_S01_trailer.mp3"),
   rotationSpeed: 36,
+};
+
+// Show template schema (uses z.any() for layers since Remotion validates at render)
+const showTemplateSchema = z.object({
+  templateConfig: z.object({
+    width: z.number(),
+    height: z.number(),
+    layers: z.array(z.any()),
+  }),
+  audioSrc: z.string().optional(),
+  episodeArtSrc: z.string().optional(),
+});
+
+// WC horizontal template config (from shows/wonder-cabinet/video-template/template.json)
+const wcHorizontalConfig = {
+  width: 1920,
+  height: 1080,
+  layers: [
+    { type: "solid" as const, color: "#2d8c46", grain: true },
+    { type: "spiral" as const, asset: "bg-galaxy-spiral-1200w@2x.png", rotationSpeed: 0.5, opacity: 0.6 },
+    { type: "cabinet-frame" as const, asset: "logo-primary-dark-bg-800w.png", artClip: true },
+    { type: "title-image" as const, asset: "WonderCabinet-title.png", layout: "flanking" as const },
+  ],
+};
+
+const wcVerticalConfig = {
+  width: 1080,
+  height: 1920,
+  layers: [
+    { type: "solid" as const, color: "#2d8c46", grain: true },
+    { type: "spiral" as const, asset: "bg-galaxy-spiral-1200w@2x.png", rotationSpeed: 0.5, opacity: 0.6 },
+    { type: "cabinet-frame" as const, asset: "logo-primary-dark-bg-800w.png", artClip: true },
+    { type: "title-image" as const, asset: "WonderCabinet-title.png", layout: "stacked" as const },
+  ],
 };
 
 /**
@@ -249,6 +284,39 @@ export const RemotionRoot: React.FC = () => {
           guestName: "Sun Salutation",
           showLogo: true,
           backgroundImage: "sun-salutation-art.jpeg",
+        }}
+      />
+
+      {/* ═══════════════════════════════════════════════════════════════
+          WC SHOW TEMPLATE - Data-driven from template.json
+          ═══════════════════════════════════════════════════════════════ */}
+      <Composition
+        id="WC-Horizontal"
+        component={ShowTemplate as React.FC<ShowTemplateProps & Record<string, unknown>>}
+        schema={showTemplateSchema}
+        durationInFrames={30 * 60}
+        fps={30}
+        width={1920}
+        height={1080}
+        defaultProps={{
+          templateConfig: wcHorizontalConfig,
+          audioSrc: staticFile("WC_S01_trailer.mp3"),
+          episodeArtSrc: "",
+        }}
+      />
+
+      <Composition
+        id="WC-Vertical"
+        component={ShowTemplate as React.FC<ShowTemplateProps & Record<string, unknown>>}
+        schema={showTemplateSchema}
+        durationInFrames={30 * 60}
+        fps={30}
+        width={1080}
+        height={1920}
+        defaultProps={{
+          templateConfig: wcVerticalConfig,
+          audioSrc: staticFile("WC_S01_trailer.mp3"),
+          episodeArtSrc: "",
         }}
       />
     </>
