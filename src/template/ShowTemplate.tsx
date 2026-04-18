@@ -70,7 +70,14 @@ const LayerRenderer: React.FC<{
         />
       );
     case "title-image":
-      return <TitleImage asset={layer.asset} layout={layer.layout} />;
+      return (
+        <TitleImage
+          asset={layer.asset}
+          layout={layer.layout}
+          leftAsset={layer.leftAsset}
+          rightAsset={layer.rightAsset}
+        />
+      );
     default:
       return null;
   }

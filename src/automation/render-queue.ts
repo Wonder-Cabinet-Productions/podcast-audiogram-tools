@@ -30,7 +30,7 @@ interface RenderJob {
   id: string;
   audioPath: string;
   outputPath: string;
-  composition: "FullEpisode" | "SocialClip";
+  composition: string;
   props: Record<string, unknown>;
   durationInFrames: number;
   status: JobStatus;
@@ -78,7 +78,7 @@ function generateJobId(): string {
  */
 export function addJob(options: {
   audioPath: string;
-  composition: "FullEpisode" | "SocialClip";
+  composition: string;
   props: Record<string, unknown>;
   durationSeconds: number;
   uploadToYouTube?: boolean;

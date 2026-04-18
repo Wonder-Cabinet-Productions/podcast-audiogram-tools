@@ -74,6 +74,24 @@ async function getAudioDuration(audioPath: string): Promise<number> {
 }
 
 /**
+ * Get the Remotion composition ID based on render options.
+ * When --show is provided, maps the slug to a show-template composition
+ * (e.g. "wonder-cabinet" → "WonderCabinet-Horizontal").
+ */
+function getCompositionId(options: RenderOptions): string {
+  if (options.showSlug) {
+    const showPrefix = options.showSlug
+      .split("-")
+      .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+      .join("");
+    return options.type === "episode"
+      ? `${showPrefix}-Horizontal`
+      : `${showPrefix}-Vertical`;
+  }
+  return options.type === "episode" ? "FullEpisode" : "SocialClip";
+}
+
+/**
  * Render video directly (not using queue)
  */
 async function renderDirect(
@@ -83,21 +101,7 @@ async function renderDirect(
   const fps = 30;
   const durationInFrames = Math.ceil(durationSeconds * fps);
 
-  let composition: string;
-  if (options.showSlug) {
-    // Show-specific template compositions use the pattern: <SHOW>-<Orientation>
-    const showPrefix = options.showSlug
-      .split("-")
-      .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
-      .join("");
-    composition =
-      options.type === "episode"
-        ? `${showPrefix}-Horizontal`
-        : `${showPrefix}-Vertical`;
-  } else {
-    composition =
-      options.type === "episode" ? "FullEpisode" : "SocialClip";
-  }
+  const composition = getCompositionId(options);
   const timestamp = new Date().toISOString().slice(0, 10);
   const safeName = options.guestName.replace(/[^a-zA-Z0-9]/g, "-");
 
@@ -289,7 +293,7 @@ async function main(): Promise<void> {
       // Add to queue for later processing
       const job = addJob({
         audioPath: options.audioPath,
-        composition: options.type === "episode" ? "FullEpisode" : "SocialClip",
+        composition: getCompositionId(options),
         props,
         durationSeconds: duration,
         uploadToYouTube: options.uploadToYouTube,

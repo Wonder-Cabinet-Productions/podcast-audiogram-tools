@@ -85,7 +85,7 @@ const wcHorizontalConfig = {
     { type: "solid" as const, color: "#2d8c46", grain: true },
     { type: "spiral" as const, asset: "bg-galaxy-spiral-1200w@2x.png", rotationSpeed: 0.5, opacity: 0.6 },
     { type: "cabinet-frame" as const, asset: "logo-primary-dark-bg-800w.png", artClip: true },
-    { type: "title-image" as const, asset: "WonderCabinet-title.png", layout: "flanking" as const },
+    { type: "title-image" as const, asset: "WonderCabinet-title.png", layout: "flanking" as const, leftAsset: "wonder.png", rightAsset: "cabinet.png" },
   ],
 };
 

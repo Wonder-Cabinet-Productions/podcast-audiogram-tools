@@ -6,6 +6,10 @@ interface TitleImageProps {
   asset: string;
   /** Layout mode: flanking (left/right of cabinet) or stacked (below) */
   layout: "flanking" | "stacked";
+  /** Left word image for flanking layout (e.g. "wonder.png") */
+  leftAsset?: string;
+  /** Right word image for flanking layout (e.g. "cabinet.png") */
+  rightAsset?: string;
 }
 
 /**
@@ -15,15 +19,18 @@ interface TitleImageProps {
  *   Uses the pre-split word assets (wonder.png, cabinet.png) already in public/.
  * - stacked: Full title image centered below the cabinet (vertical videos).
  */
-export const TitleImage: React.FC<TitleImageProps> = ({ asset, layout }) => {
+export const TitleImage: React.FC<TitleImageProps> = ({
+  asset,
+  layout,
+  leftAsset,
+  rightAsset,
+}) => {
   const { width, height } = useVideoConfig();
 
-  if (layout === "flanking") {
-    // Use pre-split word images — matches the AE reference exactly
+  if (layout === "flanking" && leftAsset && rightAsset) {
     const wordHeight = 50;
     return (
       <AbsoluteFill>
-        {/* "WONDER" on the left */}
         <div
           style={{
             position: "absolute",
@@ -34,11 +41,10 @@ export const TitleImage: React.FC<TitleImageProps> = ({ asset, layout }) => {
           }}
         >
           <Img
-            src={staticFile("wonder.png")}
+            src={staticFile(leftAsset)}
             style={{ height: "100%", width: "auto" }}
           />
         </div>
-        {/* "CABINET" on the right */}
         <div
           style={{
             position: "absolute",
@@ -49,7 +55,7 @@ export const TitleImage: React.FC<TitleImageProps> = ({ asset, layout }) => {
           }}
         >
           <Img
-            src={staticFile("cabinet.png")}
+            src={staticFile(rightAsset)}
             style={{ height: "100%", width: "auto" }}
           />
         </div>

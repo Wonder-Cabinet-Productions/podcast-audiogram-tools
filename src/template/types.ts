@@ -25,6 +25,8 @@ export const LayerDefSchema = z.discriminatedUnion("type", [
     type: z.literal("title-image"),
     asset: z.string(),
     layout: z.enum(["flanking", "stacked"]),
+    leftAsset: z.string().optional(),
+    rightAsset: z.string().optional(),
   }),
 ]);
 
