@@ -46,17 +46,22 @@ export const CabinetFrame: React.FC<CabinetFrameProps> = ({
   const svgViewBox = "0 0 800 800";
 
   // Size cabinet to match AE reference proportions.
-  // The SVG viewBox is 800x800; the cabinet shape occupies ~530x776 units
-  // within that space (taller than wide).
+  // SVG viewBox is 800x800; cabinet shape spans ~530x776 units inside it.
   //
-  // AE horizontal: cabinet body ~34% of frame width, centered
-  // AE vertical: cabinet body ~60% of frame width, pushed toward top
-  const cabinetDisplayWidth = isVertical ? width * 0.85 : width * 0.45;
-  const cabinetDisplayHeight = cabinetDisplayWidth; // 1:1 from 800x800 viewBox
+  // AE horizontal (1920x1080): cabinet 649x740px on screen → display size ≈ 980px
+  // AE vertical (1080x1920): cabinet 649x1109px on screen → display size ≈ 1143px
+  //   Cabinet top at y=0 (frame edge), bottom at 58% of frame.
+  const displaySize = isVertical
+    ? height * 0.595  // 1143px on 1920h → cabinet spans 0-58% vertically
+    : width * 0.45;   // 864px on 1920w → cabinet centered
+  const cabinetDisplayWidth = displaySize;
+  const cabinetDisplayHeight = displaySize;
 
   const left = (width - cabinetDisplayWidth) / 2;
+  // Vertical: nudge up so scalloped top (y≈11 in viewBox) sits at frame edge
+  // The shape starts at y=11 in 800-unit viewBox, so offset = -11/800 * displaySize
   const top = isVertical
-    ? height * 0.02
+    ? -(11 / 800) * displaySize
     : (height - cabinetDisplayHeight) / 2;
 
   // Episode art is inset inside the cabinet body, leaving a visible black

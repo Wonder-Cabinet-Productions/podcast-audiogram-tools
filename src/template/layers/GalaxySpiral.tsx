@@ -42,8 +42,11 @@ export const GalaxySpiral: React.FC<GalaxySpiralProps> = ({
   const scalePulse =
     1 + Math.sin((loopFrame / loopDuration) * Math.PI * 2) * 0.02;
 
-  // Size large enough to cover frame during rotation
-  const spiralSize = Math.max(width, height) * 1.8;
+  // Size the spiral so the dense core wraps tightly around the cabinet.
+  // AE ref: spiral core spans ~60% of frame width in horizontal,
+  // roughly equal to frame height. Using height * 1.1 keeps the core
+  // concentrated while allowing for rotation without corner gaps.
+  const spiralSize = height * 1.1;
 
   return (
     <AbsoluteFill>
