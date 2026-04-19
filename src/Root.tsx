@@ -6,6 +6,7 @@ import { SocialClip } from "./components/SocialClip";
 import { OriginalTemplate } from "./components/OriginalTemplate";
 import { Thumbnail } from "./components/Thumbnail";
 import { ShowTemplate, ShowTemplateProps } from "./template/ShowTemplate";
+import { LayerDefSchema } from "./template/types";
 import "./fonts.css";
 
 // Schema definitions for type-safe props
@@ -66,12 +67,11 @@ const originalTemplateDefaultProps = {
   rotationSpeed: 36,
 };
 
-// Show template schema (uses z.any() for layers since Remotion validates at render)
 const showTemplateSchema = z.object({
   templateConfig: z.object({
-    width: z.number(),
-    height: z.number(),
-    layers: z.array(z.any()),
+    width: z.number().int().positive(),
+    height: z.number().int().positive(),
+    layers: z.array(LayerDefSchema),
   }),
   audioSrc: z.string().optional(),
   episodeArtSrc: z.string().optional(),

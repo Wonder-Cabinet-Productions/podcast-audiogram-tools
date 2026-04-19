@@ -74,19 +74,29 @@ async function getAudioDuration(audioPath: string): Promise<number> {
 }
 
 /**
+ * Maps show slugs to their Remotion composition ID prefix.
+ * Must match the composition IDs registered in Root.tsx.
+ */
+const SHOW_COMPOSITION_PREFIX: Record<string, string> = {
+  "wonder-cabinet": "WC",
+};
+
+/**
  * Get the Remotion composition ID based on render options.
- * When --show is provided, maps the slug to a show-template composition
- * (e.g. "wonder-cabinet" → "WonderCabinet-Horizontal").
+ * When --show is provided, looks up the composition prefix for the slug
+ * and appends -Horizontal or -Vertical.
  */
 function getCompositionId(options: RenderOptions): string {
   if (options.showSlug) {
-    const showPrefix = options.showSlug
-      .split("-")
-      .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
-      .join("");
+    const prefix = SHOW_COMPOSITION_PREFIX[options.showSlug];
+    if (!prefix) {
+      throw new Error(
+        `Unknown show slug "${options.showSlug}". Known shows: ${Object.keys(SHOW_COMPOSITION_PREFIX).join(", ")}`
+      );
+    }
     return options.type === "episode"
-      ? `${showPrefix}-Horizontal`
-      : `${showPrefix}-Vertical`;
+      ? `${prefix}-Horizontal`
+      : `${prefix}-Vertical`;
   }
   return options.type === "episode" ? "FullEpisode" : "SocialClip";
 }
@@ -133,10 +143,18 @@ async function renderDirect(
   if (options.colorScheme) props.colorScheme = options.colorScheme;
   if (options.waveformStyle) props.waveformStyle = options.waveformStyle;
   if (options.episodeArtPath) {
-    // Copy art to public/ so Remotion can serve it via staticFile()
+    // Validate art file exists before copying
+    const resolvedArt = path.resolve(options.episodeArtPath);
+    if (!fs.existsSync(resolvedArt)) {
+      throw new Error(`Episode art file not found: ${resolvedArt} (from --art flag)`);
+    }
+    // Copy to public/ so Remotion can serve it via staticFile()
     const artFilename = `episode-art-${Date.now()}${path.extname(options.episodeArtPath)}`;
-    const artDest = path.join(__dirname, "../../public", artFilename);
-    fs.copyFileSync(path.resolve(options.episodeArtPath), artDest);
+    const publicDir = path.join(__dirname, "../../public");
+    if (!fs.existsSync(publicDir)) {
+      fs.mkdirSync(publicDir, { recursive: true });
+    }
+    fs.copyFileSync(resolvedArt, path.join(publicDir, artFilename));
     props.episodeArtSrc = artFilename;
   }
 
@@ -259,9 +277,17 @@ Examples:
         options.addToQueue = true;
         break;
       case "--show":
+        if (!args[i + 1] || args[i + 1].startsWith("--")) {
+          console.error("Error: --show requires a show slug (e.g. --show wonder-cabinet)");
+          process.exit(1);
+        }
         options.showSlug = args[++i];
         break;
       case "--art":
+        if (!args[i + 1] || args[i + 1].startsWith("--")) {
+          console.error("Error: --art requires a file path (e.g. --art episode-art.jpg)");
+          process.exit(1);
+        }
         options.episodeArtPath = args[++i];
         break;
     }

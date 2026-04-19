@@ -1,6 +1,6 @@
-// src/template/TemplateLoader.ts
 import fs from "fs";
 import path from "path";
+import { ZodError } from "zod";
 import { TemplateConfigSchema, TemplateConfig } from "./types";
 
 /**
@@ -28,8 +28,28 @@ export function loadTemplate(
     );
   }
 
-  const raw = JSON.parse(fs.readFileSync(templatePath, "utf-8"));
-  return TemplateConfigSchema.parse(raw);
+  let raw: unknown;
+  try {
+    raw = JSON.parse(fs.readFileSync(templatePath, "utf-8"));
+  } catch (err) {
+    throw new Error(
+      `Failed to parse template JSON for show "${showSlug}" at ${templatePath}: ${err instanceof Error ? err.message : err}`
+    );
+  }
+
+  try {
+    return TemplateConfigSchema.parse(raw);
+  } catch (err) {
+    if (err instanceof ZodError) {
+      const issues = err.issues
+        .map((i) => `  - ${i.path.join(".")}: ${i.message}`)
+        .join("\n");
+      throw new Error(
+        `Template validation failed for show "${showSlug}" at ${templatePath}:\n${issues}`
+      );
+    }
+    throw err;
+  }
 }
 
 /**

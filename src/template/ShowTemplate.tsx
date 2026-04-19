@@ -78,7 +78,9 @@ const LayerRenderer: React.FC<{
           rightAsset={layer.rightAsset}
         />
       );
-    default:
+    default: {
+      const _exhaustive: never = layer;
       return null;
+    }
   }
 };

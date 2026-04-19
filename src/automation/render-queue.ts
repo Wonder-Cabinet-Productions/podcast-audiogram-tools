@@ -92,7 +92,7 @@ export function addJob(options: {
   const guestName = (options.props.guestName as string) || "Unknown";
   const safeName = guestName.replace(/[^a-zA-Z0-9]/g, "-");
   const timestamp = new Date().toISOString().slice(0, 10);
-  const isEpisode = options.composition === "FullEpisode";
+  const isEpisode = options.composition === "FullEpisode" || options.composition.endsWith("-Horizontal");
   const episodeNum = options.props.episodeNumber;
 
   let outputFilename: string;

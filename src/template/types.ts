@@ -7,14 +7,14 @@ import { z } from "zod";
 export const LayerDefSchema = z.discriminatedUnion("type", [
   z.object({
     type: z.literal("solid"),
-    color: z.string(),
+    color: z.string().regex(/^#[0-9a-fA-F]{6}$/, "Must be a hex color (e.g. #2d8c46)"),
     grain: z.boolean().optional(),
   }),
   z.object({
     type: z.literal("spiral"),
     asset: z.string(),
-    rotationSpeed: z.number().optional(),
-    opacity: z.number().optional(),
+    rotationSpeed: z.number().positive().optional(),
+    opacity: z.number().min(0).max(1).optional(),
   }),
   z.object({
     type: z.literal("cabinet-frame"),
@@ -33,9 +33,9 @@ export const LayerDefSchema = z.discriminatedUnion("type", [
 export type LayerDef = z.infer<typeof LayerDefSchema>;
 
 export const OrientationSchema = z.object({
-  width: z.number(),
-  height: z.number(),
-  layers: z.array(LayerDefSchema),
+  width: z.number().int().positive(),
+  height: z.number().int().positive(),
+  layers: z.array(LayerDefSchema).min(1),
 });
 
 export type OrientationConfig = z.infer<typeof OrientationSchema>;
@@ -43,7 +43,7 @@ export type OrientationConfig = z.infer<typeof OrientationSchema>;
 export const TemplateConfigSchema = z.object({
   name: z.string(),
   show: z.string(),
-  fps: z.number().default(30),
+  fps: z.number().int().positive().default(30),
   horizontal: OrientationSchema,
   vertical: OrientationSchema,
 });

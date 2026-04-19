@@ -40,6 +40,7 @@ export const CabinetFrame: React.FC<CabinetFrameProps> = ({
   artClip = true,
   episodeArtSrc,
 }) => {
+  const clipId = React.useId();
   const { width, height } = useVideoConfig();
 
   const isVertical = height > width;
@@ -83,7 +84,7 @@ export const CabinetFrame: React.FC<CabinetFrameProps> = ({
         }}
       >
         <defs>
-          <clipPath id="cabinetBodyClip">
+          <clipPath id={`cabinetBodyClip-${clipId}`}>
             <path d={CABINET_BODY_CLIP} />
           </clipPath>
         </defs>
@@ -93,7 +94,7 @@ export const CabinetFrame: React.FC<CabinetFrameProps> = ({
 
         {/* Episode art clipped to cabinet body */}
         {artClip && episodeArtSrc && (
-          <g clipPath="url(#cabinetBodyClip)">
+          <g clipPath={`url(#cabinetBodyClip-${clipId})`}>
             <image
               href={staticFile(episodeArtSrc)}
               x={artX}
