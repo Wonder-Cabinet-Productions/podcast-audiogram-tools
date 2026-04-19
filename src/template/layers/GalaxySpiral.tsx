@@ -42,12 +42,13 @@ export const GalaxySpiral: React.FC<GalaxySpiralProps> = ({
   const scalePulse =
     1 + Math.sin((loopFrame / loopDuration) * Math.PI * 2) * 0.02;
 
-  // Size so the dense spiral core wraps around the cabinet.
-  // The spiral image (2400x2400 RGBA) has max alpha of 71/255 (28%),
-  // so the image itself provides transparency — don't over-reduce with
-  // the component opacity prop. Size at 1.25x to keep particles
-  // concentrated without corner gaps during rotation.
+  const isVertical = height > width;
   const spiralSize = Math.max(width, height) * 1.1;
+
+  // Center the spiral on the cabinet, not the frame.
+  // Horizontal: cabinet is centered in the full frame — spiral matches.
+  // Vertical: cabinet sits in the upper ~60% of frame, so shift spiral up.
+  const spiralCenterY = isVertical ? height * 0.30 : height / 2;
 
   return (
     <AbsoluteFill>
@@ -57,10 +58,13 @@ export const GalaxySpiral: React.FC<GalaxySpiralProps> = ({
           width: spiralSize,
           height: spiralSize,
           left: (width - spiralSize) / 2,
-          top: (height - spiralSize) / 2,
+          top: spiralCenterY - spiralSize / 2,
           transform: `rotate(${rotation}deg) scale(${scalePulse})`,
           transformOrigin: "center center",
           opacity,
+          // The source image has very low alpha (max 28%). Boost brightness
+          // so the spiral particles are more visible against the green bg.
+          filter: "brightness(2.5)",
         }}
       >
         <Img
