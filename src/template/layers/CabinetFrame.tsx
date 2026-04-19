@@ -45,31 +45,28 @@ export const CabinetFrame: React.FC<CabinetFrameProps> = ({
   const isVertical = height > width;
   const svgViewBox = "0 0 800 800";
 
-  // Size and position to match AE reference renders.
-  // The SVG viewBox is 800x800 with cabinet shape occupying ~530x776 units
-  // inside that space, so a square display size maps to a tall-narrow cabinet.
+  // Size cabinet to match AE reference proportions.
+  // The SVG viewBox is 800x800; the cabinet shape occupies ~530x776 units
+  // within that space (taller than wide).
   //
-  // AE horizontal: cabinet dark area measures ~649x740px on 1920x1080
-  //   → display square ≈ 980px (649 * 800/530), top at ~5% from frame top
-  // AE vertical: cabinet width ~60% of 1080 (648px), top at frame edge
-  //   → display square ≈ 978px, positioned at y ≈ -12px (scalloped top at frame edge)
-  const displaySize = isVertical
-    ? width * 0.91   // 982px on 1080w — legs reach ~57% of frame
-    : height * 0.91; // 983px on 1080h — cabinet fills most of vertical space
-
-  const cabinetDisplayWidth = displaySize;
-  const cabinetDisplayHeight = displaySize;
+  // AE horizontal: cabinet body ~34% of frame width, centered
+  // AE vertical: cabinet body ~60% of frame width, pushed toward top
+  const cabinetDisplayWidth = isVertical ? width * 0.85 : width * 0.45;
+  const cabinetDisplayHeight = cabinetDisplayWidth; // 1:1 from 800x800 viewBox
 
   const left = (width - cabinetDisplayWidth) / 2;
   const top = isVertical
-    ? -displaySize * 0.015  // nudge up so scalloped top nearly touches frame edge
-    : height * 0.04;        // slight offset from top, matching AE ref
+    ? height * 0.02
+    : (height - cabinetDisplayHeight) / 2;
 
-  // Episode art fills the cabinet body interior (x:136-664, y:64-612)
-  const artX = 136;
-  const artY = 64;
-  const artWidth = 528;
-  const artHeight = 548;
+  // Episode art is inset inside the cabinet body, leaving a visible black
+  // frame border around it. Measurements derived from AE reference renders:
+  // ~20 SVG units inset on each side, art starts below the scalloped arch
+  // at y≈95, extends to y≈526 (86 units above cabinet body bottom at y=612).
+  const artX = 161;
+  const artY = 95;
+  const artWidth = 478;
+  const artHeight = 431;
 
   return (
     <AbsoluteFill>
