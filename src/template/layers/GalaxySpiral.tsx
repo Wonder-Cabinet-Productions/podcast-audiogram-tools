@@ -25,7 +25,7 @@ interface GalaxySpiralProps {
 export const GalaxySpiral: React.FC<GalaxySpiralProps> = ({
   asset,
   rotationSpeed = 0.5,
-  opacity = 0.6,
+  opacity = 1.0,
 }) => {
   const frame = useCurrentFrame();
   const { width, height, fps } = useVideoConfig();
@@ -42,10 +42,12 @@ export const GalaxySpiral: React.FC<GalaxySpiralProps> = ({
   const scalePulse =
     1 + Math.sin((loopFrame / loopDuration) * Math.PI * 2) * 0.02;
 
-  // Size the spiral so the dense core wraps around the cabinet.
-  // Too large (1.8x) = sparse particles at edges. Too small (1.1x) = too tight.
-  // AE ref shows spiral extending moderately beyond the cabinet.
-  const spiralSize = Math.max(width, height) * 1.4;
+  // Size so the dense spiral core wraps around the cabinet.
+  // The spiral image (2400x2400 RGBA) has max alpha of 71/255 (28%),
+  // so the image itself provides transparency — don't over-reduce with
+  // the component opacity prop. Size at 1.25x to keep particles
+  // concentrated without corner gaps during rotation.
+  const spiralSize = Math.max(width, height) * 1.25;
 
   return (
     <AbsoluteFill>

@@ -58,10 +58,10 @@ export const CabinetFrame: React.FC<CabinetFrameProps> = ({
   const cabinetDisplayHeight = displaySize;
 
   const left = (width - cabinetDisplayWidth) / 2;
-  // Vertical: nudge up so scalloped top (y≈11 in viewBox) sits at frame edge
-  // The shape starts at y=11 in 800-unit viewBox, so offset = -11/800 * displaySize
+  // Vertical: SVG top at frame edge — the scalloped arch (starting at y=11
+  // in the 800-unit viewBox) naturally creates a small gap from frame top.
   const top = isVertical
-    ? -(11 / 800) * displaySize
+    ? 0
     : (height - cabinetDisplayHeight) / 2;
 
   // Episode art is inset inside the cabinet body, leaving a visible black
