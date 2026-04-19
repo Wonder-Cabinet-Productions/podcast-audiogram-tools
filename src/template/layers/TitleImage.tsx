@@ -28,14 +28,15 @@ export const TitleImage: React.FC<TitleImageProps> = ({
   const { width, height } = useVideoConfig();
 
   if (layout === "flanking" && leftAsset && rightAsset) {
-    const wordHeight = 50;
+    // AE ref: title text is ~5.6% of frame height, centered at ~41.5% height
+    const wordHeight = height * 0.056;
     return (
       <AbsoluteFill>
         <div
           style={{
             position: "absolute",
-            left: 80,
-            top: "42%",
+            left: width * 0.05,
+            top: "41.5%",
             transform: "translateY(-50%)",
             height: wordHeight,
           }}
@@ -48,8 +49,8 @@ export const TitleImage: React.FC<TitleImageProps> = ({
         <div
           style={{
             position: "absolute",
-            right: 80,
-            top: "42%",
+            right: width * 0.05,
+            top: "41.5%",
             transform: "translateY(-50%)",
             height: wordHeight,
           }}
@@ -63,14 +64,15 @@ export const TitleImage: React.FC<TitleImageProps> = ({
     );
   }
 
-  // Stacked layout — full title centered below cabinet
-  const titleHeight = 40;
+  // Stacked layout — title centered below cabinet, sized relative to frame width
+  // AE reference: title spans ~70% of frame width, positioned near bottom
+  const titleWidth = width * 0.7;
   return (
     <AbsoluteFill>
       <div
         style={{
           position: "absolute",
-          bottom: height * 0.08,
+          bottom: height * 0.06,
           left: 0,
           right: 0,
           display: "flex",
@@ -79,7 +81,7 @@ export const TitleImage: React.FC<TitleImageProps> = ({
       >
         <Img
           src={staticFile(asset)}
-          style={{ height: titleHeight, width: "auto" }}
+          style={{ width: titleWidth, height: "auto" }}
         />
       </div>
     </AbsoluteFill>

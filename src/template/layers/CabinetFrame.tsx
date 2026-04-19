@@ -42,14 +42,28 @@ export const CabinetFrame: React.FC<CabinetFrameProps> = ({
 }) => {
   const { width, height } = useVideoConfig();
 
-  // Scale cabinet to ~78% of video height, maintaining 1:1 aspect (800x800 viewBox)
-  const cabinetDisplayHeight = height * 0.78;
-  const cabinetDisplayWidth = cabinetDisplayHeight;
+  const isVertical = height > width;
   const svgViewBox = "0 0 800 800";
 
-  // Center position
+  // Size and position to match AE reference renders.
+  // The SVG viewBox is 800x800 with cabinet shape occupying ~530x776 units
+  // inside that space, so a square display size maps to a tall-narrow cabinet.
+  //
+  // AE horizontal: cabinet dark area measures ~649x740px on 1920x1080
+  //   → display square ≈ 980px (649 * 800/530), top at ~5% from frame top
+  // AE vertical: cabinet width ~60% of 1080 (648px), top at frame edge
+  //   → display square ≈ 978px, positioned at y ≈ -12px (scalloped top at frame edge)
+  const displaySize = isVertical
+    ? width * 0.91   // 982px on 1080w — legs reach ~57% of frame
+    : height * 0.91; // 983px on 1080h — cabinet fills most of vertical space
+
+  const cabinetDisplayWidth = displaySize;
+  const cabinetDisplayHeight = displaySize;
+
   const left = (width - cabinetDisplayWidth) / 2;
-  const top = (height - cabinetDisplayHeight) / 2;
+  const top = isVertical
+    ? -displaySize * 0.015  // nudge up so scalloped top nearly touches frame edge
+    : height * 0.04;        // slight offset from top, matching AE ref
 
   // Episode art fills the cabinet body interior (x:136-664, y:64-612)
   const artX = 136;
