@@ -47,22 +47,17 @@ export const CabinetFrame: React.FC<CabinetFrameProps> = ({
 
   // Size cabinet to match AE reference proportions.
   // SVG viewBox is 800x800; cabinet shape spans ~530x776 units inside it.
-  //
-  // AE horizontal (1920x1080): cabinet 649x740px on screen → display size ≈ 980px
-  // AE vertical (1080x1920): cabinet 649x1109px on screen → display size ≈ 1143px
-  //   Cabinet top at y=0 (frame edge), bottom at 58% of frame.
   const displaySize = isVertical
-    ? height * 0.595  // 1143px on 1920h → cabinet spans 0-58% vertically
+    ? height * 0.55   // cabinet in upper portion, leaving room for title below
     : width * 0.45;   // 864px on 1920w → cabinet centered
   const cabinetDisplayWidth = displaySize;
   const cabinetDisplayHeight = displaySize;
 
   const left = (width - cabinetDisplayWidth) / 2;
-  // Vertical: SVG top at frame edge — the scalloped arch (starting at y=11
-  // in the 800-unit viewBox) naturally creates a small gap from frame top.
-  const top = isVertical
-    ? 0
-    : (height - cabinetDisplayHeight) / 2;
+  // Vertical: center cabinet in the upper 60% of frame (title occupies bottom 40%)
+  // Horizontal: center in full frame
+  const titleZoneHeight = isVertical ? height * 0.60 : height;
+  const top = (titleZoneHeight - cabinetDisplayHeight) / 2;
 
   // Episode art is inset inside the cabinet body, leaving a visible black
   // frame border. The art rect is square (episode collages are 1:1),

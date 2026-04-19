@@ -47,7 +47,7 @@ export const GalaxySpiral: React.FC<GalaxySpiralProps> = ({
   // so the image itself provides transparency — don't over-reduce with
   // the component opacity prop. Size at 1.25x to keep particles
   // concentrated without corner gaps during rotation.
-  const spiralSize = Math.max(width, height) * 1.25;
+  const spiralSize = Math.max(width, height) * 1.1;
 
   return (
     <AbsoluteFill>
