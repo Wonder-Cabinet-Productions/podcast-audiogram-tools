@@ -60,13 +60,15 @@ export const CabinetFrame: React.FC<CabinetFrameProps> = ({
     : (height - cabinetDisplayHeight) / 2;
 
   // Episode art is inset inside the cabinet body, leaving a visible black
-  // frame border around it. Measurements derived from AE reference renders:
-  // ~20 SVG units inset on each side, art starts below the scalloped arch
-  // at y≈95, extends to y≈526 (86 units above cabinet body bottom at y=612).
-  const artX = 161;
-  const artY = 95;
-  const artWidth = 478;
-  const artHeight = 431;
+  // frame border. The art rect is square (episode collages are 1:1),
+  // centered horizontally within the cabinet body (x:136-664) and
+  // positioned below the scalloped arch with border at the bottom.
+  // Cabinet body interior: 528 units wide (136-664), starts at y=65.
+  const artInset = 20; // side inset from cabinet body edge
+  const artWidth = 528 - artInset * 2; // 488 units
+  const artHeight = artWidth; // square to match 1:1 collage art
+  const artX = 136 + artInset; // 156
+  const artY = 100; // below scalloped arch (arch peaks at y≈11, baseline y≈65)
 
   return (
     <AbsoluteFill>
@@ -98,7 +100,7 @@ export const CabinetFrame: React.FC<CabinetFrameProps> = ({
               y={artY}
               width={artWidth}
               height={artHeight}
-              preserveAspectRatio="xMidYMid slice"
+              preserveAspectRatio="xMidYMid meet"
             />
           </g>
         )}
