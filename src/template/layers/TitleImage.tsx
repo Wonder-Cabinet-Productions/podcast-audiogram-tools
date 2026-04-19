@@ -64,16 +64,16 @@ export const TitleImage: React.FC<TitleImageProps> = ({
     );
   }
 
-  // Stacked layout — title below cabinet, nearly full width.
-  // AE vertical ref: title at y=60%-89%, full frame width, 29% of frame height.
-  // Gap between cabinet bottom and title top is only ~2% of frame.
-  const titleWidth = width * 0.95;
+  // Stacked layout — AE vertical ref: title starts at 50% of frame,
+  // spans full width, 39% of frame height. Title OVERLAPS the cabinet
+  // legs (cabinet bottom is at ~58%, title starts at 50%).
+  const titleWidth = width;
   return (
     <AbsoluteFill>
       <div
         style={{
           position: "absolute",
-          top: height * 0.60,
+          top: height * 0.50,
           left: 0,
           right: 0,
           display: "flex",

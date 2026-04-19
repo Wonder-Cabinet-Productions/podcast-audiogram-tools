@@ -46,9 +46,9 @@ export const GalaxySpiral: React.FC<GalaxySpiralProps> = ({
   const spiralSize = Math.max(width, height) * 1.1;
 
   // Center the spiral on the cabinet, not the frame.
-  // Horizontal: cabinet is centered in the full frame — spiral matches.
-  // Vertical: cabinet sits in the upper ~60% of frame, so shift spiral up.
-  const spiralCenterY = isVertical ? height * 0.30 : height / 2;
+  // AE horizontal: spiral centered at 50% of frame (cabinet is centered)
+  // AE vertical: spiral centered at 26% of frame (cabinet is in upper half)
+  const spiralCenterY = isVertical ? height * 0.26 : height / 2;
 
   return (
     <AbsoluteFill>
