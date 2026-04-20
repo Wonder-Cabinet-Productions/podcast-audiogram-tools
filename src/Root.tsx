@@ -6,7 +6,7 @@ import { SocialClip } from "./components/SocialClip";
 import { OriginalTemplate } from "./components/OriginalTemplate";
 import { Thumbnail } from "./components/Thumbnail";
 import { ShowTemplate, ShowTemplateProps } from "./template/ShowTemplate";
-import { LayerDefSchema } from "./template/types";
+import { OrientationSchema } from "./template/types";
 import "./fonts.css";
 
 // Schema definitions for type-safe props
@@ -68,11 +68,7 @@ const originalTemplateDefaultProps = {
 };
 
 const showTemplateSchema = z.object({
-  templateConfig: z.object({
-    width: z.number().int().positive(),
-    height: z.number().int().positive(),
-    layers: z.array(LayerDefSchema),
-  }),
+  templateConfig: OrientationSchema,
   audioSrc: z.string().optional(),
   episodeArtSrc: z.string().optional(),
 });
