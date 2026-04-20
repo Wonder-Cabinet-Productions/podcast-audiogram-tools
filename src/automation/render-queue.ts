@@ -30,7 +30,7 @@ interface RenderJob {
   id: string;
   audioPath: string;
   outputPath: string;
-  composition: "FullEpisode" | "SocialClip";
+  composition: string;
   props: Record<string, unknown>;
   durationInFrames: number;
   status: JobStatus;
@@ -78,7 +78,7 @@ function generateJobId(): string {
  */
 export function addJob(options: {
   audioPath: string;
-  composition: "FullEpisode" | "SocialClip";
+  composition: string;
   props: Record<string, unknown>;
   durationSeconds: number;
   uploadToYouTube?: boolean;
@@ -92,7 +92,7 @@ export function addJob(options: {
   const guestName = (options.props.guestName as string) || "Unknown";
   const safeName = guestName.replace(/[^a-zA-Z0-9]/g, "-");
   const timestamp = new Date().toISOString().slice(0, 10);
-  const isEpisode = options.composition === "FullEpisode";
+  const isEpisode = options.composition === "FullEpisode" || options.composition.endsWith("-Horizontal");
   const episodeNum = options.props.episodeNumber;
 
   let outputFilename: string;

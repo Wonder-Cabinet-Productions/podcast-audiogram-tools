@@ -37,6 +37,8 @@ interface RenderOptions {
   waveformStyle?: "mirror" | "bars" | "circle" | "line";
   uploadToYouTube?: boolean;
   addToQueue?: boolean;
+  showSlug?: string;
+  episodeArtPath?: string;
 }
 
 /**
@@ -72,6 +74,34 @@ async function getAudioDuration(audioPath: string): Promise<number> {
 }
 
 /**
+ * Maps show slugs to their Remotion composition ID prefix.
+ * Must match the composition IDs registered in Root.tsx.
+ */
+const SHOW_COMPOSITION_PREFIX: Record<string, string> = {
+  "wonder-cabinet": "WC",
+};
+
+/**
+ * Get the Remotion composition ID based on render options.
+ * When --show is provided, looks up the composition prefix for the slug
+ * and appends -Horizontal or -Vertical.
+ */
+function getCompositionId(options: RenderOptions): string {
+  if (options.showSlug) {
+    const prefix = SHOW_COMPOSITION_PREFIX[options.showSlug];
+    if (!prefix) {
+      throw new Error(
+        `Unknown show slug "${options.showSlug}". Known shows: ${Object.keys(SHOW_COMPOSITION_PREFIX).join(", ")}`
+      );
+    }
+    return options.type === "episode"
+      ? `${prefix}-Horizontal`
+      : `${prefix}-Vertical`;
+  }
+  return options.type === "episode" ? "FullEpisode" : "SocialClip";
+}
+
+/**
  * Render video directly (not using queue)
  */
 async function renderDirect(
@@ -81,7 +111,7 @@ async function renderDirect(
   const fps = 30;
   const durationInFrames = Math.ceil(durationSeconds * fps);
 
-  const composition = options.type === "episode" ? "FullEpisode" : "SocialClip";
+  const composition = getCompositionId(options);
   const timestamp = new Date().toISOString().slice(0, 10);
   const safeName = options.guestName.replace(/[^a-zA-Z0-9]/g, "-");
 
@@ -112,6 +142,21 @@ async function renderDirect(
   if (options.hookText) props.hookText = options.hookText;
   if (options.colorScheme) props.colorScheme = options.colorScheme;
   if (options.waveformStyle) props.waveformStyle = options.waveformStyle;
+  if (options.episodeArtPath) {
+    // Validate art file exists before copying
+    const resolvedArt = path.resolve(options.episodeArtPath);
+    if (!fs.existsSync(resolvedArt)) {
+      throw new Error(`Episode art file not found: ${resolvedArt} (from --art flag)`);
+    }
+    // Copy to public/ so Remotion can serve it via staticFile()
+    const artFilename = `episode-art-${Date.now()}${path.extname(options.episodeArtPath)}`;
+    const publicDir = path.join(__dirname, "../../public");
+    if (!fs.existsSync(publicDir)) {
+      fs.mkdirSync(publicDir, { recursive: true });
+    }
+    fs.copyFileSync(resolvedArt, path.join(publicDir, artFilename));
+    props.episodeArtSrc = artFilename;
+  }
 
   console.log("\n" + "═".repeat(60));
   console.log("Audiogram Tools - Video Render");
@@ -173,6 +218,8 @@ Options:
   --waveform <type> Waveform style: mirror, bars, circle, line
   --upload          Upload to YouTube after render
   --queue           Add to queue instead of immediate render
+  --show <slug>     Use show-specific template (e.g. wonder-cabinet)
+  --art <path>      Episode art image path (for template compositions)
 
 Examples:
   npx ts-node render-trigger.ts audio.mp3 --guest "Jane Doe" --ep 42 --title "The Big Idea"
@@ -229,6 +276,20 @@ Examples:
       case "--queue":
         options.addToQueue = true;
         break;
+      case "--show":
+        if (!args[i + 1] || args[i + 1].startsWith("--")) {
+          console.error("Error: --show requires a show slug (e.g. --show wonder-cabinet)");
+          process.exit(1);
+        }
+        options.showSlug = args[++i];
+        break;
+      case "--art":
+        if (!args[i + 1] || args[i + 1].startsWith("--")) {
+          console.error("Error: --art requires a file path (e.g. --art episode-art.jpg)");
+          process.exit(1);
+        }
+        options.episodeArtPath = args[++i];
+        break;
     }
   }
 
@@ -262,7 +323,7 @@ async function main(): Promise<void> {
       // Add to queue for later processing
       const job = addJob({
         audioPath: options.audioPath,
-        composition: options.type === "episode" ? "FullEpisode" : "SocialClip",
+        composition: getCompositionId(options),
         props,
         durationSeconds: duration,
         uploadToYouTube: options.uploadToYouTube,
