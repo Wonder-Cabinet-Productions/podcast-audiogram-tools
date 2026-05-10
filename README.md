@@ -36,13 +36,13 @@ This opens a browser preview where you can see all compositions and adjust props
 
 ```bash
 # Full episode
-npx ts-node src/automation/render-trigger.ts audio.mp3 \
+npx tsx src/automation/render-trigger.ts audio.mp3 \
   --guest "Dr. Jane Doe" \
   --ep 42 \
   --title "Exploring the Unknown"
 
 # Social clip
-npx ts-node src/automation/render-trigger.ts clip.mp3 \
+npx tsx src/automation/render-trigger.ts clip.mp3 \
   --clip \
   --guest "Dr. Jane Doe" \
   --hook "This changed everything for me..."
@@ -140,17 +140,17 @@ For batch processing (recommended for hour-long episodes):
 
 ```bash
 # Add jobs to queue
-npx ts-node src/automation/render-trigger.ts audio1.mp3 --guest "Guest 1" --queue
-npx ts-node src/automation/render-trigger.ts audio2.mp3 --guest "Guest 2" --queue
+npx tsx src/automation/render-trigger.ts audio1.mp3 --guest "Guest 1" --queue
+npx tsx src/automation/render-trigger.ts audio2.mp3 --guest "Guest 2" --queue
 
 # Check queue status
-npx ts-node src/automation/render-queue.ts status
+npx tsx src/automation/render-queue.ts status
 
 # Process queue (run overnight)
 npm run render:all
 
 # Clear finished jobs
-npx ts-node src/automation/render-queue.ts clear
+npx tsx src/automation/render-queue.ts clear
 ```
 
 ### YouTube Upload
@@ -161,10 +161,10 @@ cp .env.example .env
 # Edit .env with your YouTube API credentials
 
 # Upload with queue
-npx ts-node src/automation/render-trigger.ts audio.mp3 --guest "Guest" --queue --upload
+npx tsx src/automation/render-trigger.ts audio.mp3 --guest "Guest" --queue --upload
 
 # Or upload directly
-npx ts-node src/automation/youtube-upload.ts output/video.mp4 "Video Title"
+npx tsx src/automation/youtube-upload.ts output/video.mp4 "Video Title"
 ```
 
 ---

@@ -71,6 +71,7 @@ const showTemplateSchema = z.object({
   templateConfig: OrientationSchema,
   audioSrc: z.string().optional(),
   episodeArtSrc: z.string().optional(),
+  durationInFrames: z.number().int().positive().optional(),
 });
 
 // WC horizontal template config (from shows/wonder-cabinet/video-template/template.json)
@@ -78,8 +79,8 @@ const wcHorizontalConfig = {
   width: 1920,
   height: 1080,
   layers: [
-    { type: "solid" as const, color: "#2d8c46", grain: true },
-    { type: "spiral" as const, asset: "bg-galaxy-spiral-1200w@2x.png", rotationSpeed: 0.5, opacity: 1.0 },
+    { type: "solid" as const, color: "#10a544", grain: true },
+    { type: "spiral" as const, asset: "bg-galaxy-spiral-1200w@2x.png", rotationSpeed: -0.5, opacity: 1.0 },
     { type: "cabinet-frame" as const, asset: "logo-primary-dark-bg-800w.png", artClip: true },
     { type: "title-image" as const, asset: "WonderCabinet-title.png", layout: "flanking" as const, leftAsset: "wonder.png", rightAsset: "cabinet.png" },
   ],
@@ -89,8 +90,8 @@ const wcVerticalConfig = {
   width: 1080,
   height: 1920,
   layers: [
-    { type: "solid" as const, color: "#2d8c46", grain: true },
-    { type: "spiral" as const, asset: "bg-galaxy-spiral-1200w@2x.png", rotationSpeed: 0.5, opacity: 1.0 },
+    { type: "solid" as const, color: "#10a544", grain: true },
+    { type: "spiral" as const, asset: "bg-galaxy-spiral-1200w@2x.png", rotationSpeed: -0.5, opacity: 1.0 },
     { type: "cabinet-frame" as const, asset: "logo-primary-dark-bg-800w.png", artClip: true },
     { type: "title-image" as const, asset: "WonderCabinet-title.png", layout: "stacked" as const },
   ],
@@ -299,6 +300,9 @@ export const RemotionRoot: React.FC = () => {
           audioSrc: staticFile("WC_S01_trailer.mp3"),
           episodeArtSrc: "",
         }}
+        calculateMetadata={({ props }) => ({
+          durationInFrames: props.durationInFrames ?? 30 * 60,
+        })}
       />
 
       <Composition
@@ -314,6 +318,9 @@ export const RemotionRoot: React.FC = () => {
           audioSrc: staticFile("WC_S01_trailer.mp3"),
           episodeArtSrc: "",
         }}
+        calculateMetadata={({ props }) => ({
+          durationInFrames: props.durationInFrames ?? 30 * 60,
+        })}
       />
     </>
   );

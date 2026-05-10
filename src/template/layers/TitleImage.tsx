@@ -28,14 +28,16 @@ export const TitleImage: React.FC<TitleImageProps> = ({
   const { width, height } = useVideoConfig();
 
   if (layout === "flanking" && leftAsset && rightAsset) {
-    // AE ref: title text is ~5.6% of frame height, centered at ~41.5% height
-    const wordHeight = height * 0.056;
+    // AE ref: measured WONDER wordmark width = 535px on 1920 frame.
+    // wonder.png aspect after trim = 2314/261 = 8.866. Target render
+    // height = 535 / 8.866 = 60.3px = 5.58% of 1080. Use 0.057 to match.
+    const wordHeight = height * 0.057;
     return (
       <AbsoluteFill>
         <div
           style={{
             position: "absolute",
-            left: width * 0.05,
+            left: width * 0.025,
             top: "41.5%",
             transform: "translateY(-50%)",
             height: wordHeight,
@@ -49,7 +51,7 @@ export const TitleImage: React.FC<TitleImageProps> = ({
         <div
           style={{
             position: "absolute",
-            right: width * 0.05,
+            right: width * 0.025,
             top: "41.5%",
             transform: "translateY(-50%)",
             height: wordHeight,

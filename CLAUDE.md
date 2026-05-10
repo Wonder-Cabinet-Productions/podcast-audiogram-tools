@@ -26,8 +26,8 @@ npx remotion render FullEpisode out/video.mp4 --props='{"audioSrc": "path/to/aud
 
 Automation CLI:
 ```bash
-npx ts-node src/automation/render-trigger.ts audio.mp3 --guest "Name" --ep 42 --title "Title"
-npx ts-node src/automation/render-trigger.ts clip.mp3 --clip --guest "Name" --hook "Hook text"
+npx tsx src/automation/render-trigger.ts audio.mp3 --guest "Name" --ep 42 --title "Title"
+npx tsx src/automation/render-trigger.ts clip.mp3 --clip --guest "Name" --hook "Hook text"
 ```
 
 ## Architecture

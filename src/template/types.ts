@@ -13,7 +13,7 @@ export const LayerDefSchema = z.discriminatedUnion("type", [
   z.object({
     type: z.literal("spiral"),
     asset: z.string(),
-    rotationSpeed: z.number().positive().optional(),
+    rotationSpeed: z.number().optional(),
     opacity: z.number().min(0).max(1).optional(),
   }),
   z.object({
