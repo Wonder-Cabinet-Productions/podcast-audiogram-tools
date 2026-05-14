@@ -19,6 +19,7 @@
  */
 
 import fs from "fs";
+import os from "os";
 import path from "path";
 import { spawn } from "child_process";
 import { addJob, processQueue } from "./render-queue";
@@ -131,10 +132,28 @@ async function renderDirect(
     fs.mkdirSync(OUTPUT_DIR, { recursive: true });
   }
 
-  // Build props
+  const publicDir = path.join(__dirname, "../../public");
+  if (!fs.existsSync(publicDir)) {
+    fs.mkdirSync(publicDir, { recursive: true });
+  }
+
+  // Track files copied into public/ so we can clean them up after render.
+  const publicCopies: string[] = [];
+
+  // Audio: Remotion <Audio src={...}> needs a staticFile()-resolvable filename.
+  // Copy (or hardlink-fallback to copy) the source audio into public/.
+  const resolvedAudio = path.resolve(options.audioPath);
+  const audioFilename = `episode-audio-${Date.now()}${path.extname(options.audioPath)}`;
+  const audioInPublic = path.join(publicDir, audioFilename);
+  fs.copyFileSync(resolvedAudio, audioInPublic);
+  publicCopies.push(audioInPublic);
+
+  // Build props. durationInFrames is passed so the WC-Horizontal/Vertical
+  // compositions can override their default 60s duration via calculateMetadata.
   const props: Record<string, unknown> = {
-    audioSrc: path.resolve(options.audioPath),
+    audioSrc: audioFilename,
     guestName: options.guestName,
+    durationInFrames,
   };
 
   if (options.episodeNumber) props.episodeNumber = options.episodeNumber;
@@ -150,11 +169,9 @@ async function renderDirect(
     }
     // Copy to public/ so Remotion can serve it via staticFile()
     const artFilename = `episode-art-${Date.now()}${path.extname(options.episodeArtPath)}`;
-    const publicDir = path.join(__dirname, "../../public");
-    if (!fs.existsSync(publicDir)) {
-      fs.mkdirSync(publicDir, { recursive: true });
-    }
-    fs.copyFileSync(resolvedArt, path.join(publicDir, artFilename));
+    const artInPublic = path.join(publicDir, artFilename);
+    fs.copyFileSync(resolvedArt, artInPublic);
+    publicCopies.push(artInPublic);
     props.episodeArtSrc = artFilename;
   }
 
@@ -167,22 +184,33 @@ async function renderDirect(
   console.log(`Output: ${outputPath}`);
   console.log("═".repeat(60));
 
+  // Write props to a temp JSON file rather than passing as a CLI string.
+  // shell-tokenization mangles JSON quotes/braces; --props=<file> avoids it.
+  const propsFile = path.join(os.tmpdir(), `remotion-props-${Date.now()}.json`);
+  fs.writeFileSync(propsFile, JSON.stringify(props));
+
   return new Promise((resolve, reject) => {
     const args = [
       "remotion",
       "render",
       composition,
       outputPath,
-      `--props=${JSON.stringify(props)}`,
-      `--frames=0-${durationInFrames - 1}`,
+      `--props=${propsFile}`,
     ];
 
     const render = spawn("npx", args, {
       stdio: "inherit",
-      shell: true,
     });
 
+    const cleanup = () => {
+      try { fs.unlinkSync(propsFile); } catch {}
+      for (const f of publicCopies) {
+        try { fs.unlinkSync(f); } catch {}
+      }
+    };
+
     render.on("close", (code) => {
+      cleanup();
       if (code === 0) {
         resolve(outputPath);
       } else {
@@ -190,7 +218,10 @@ async function renderDirect(
       }
     });
 
-    render.on("error", reject);
+    render.on("error", (err) => {
+      cleanup();
+      reject(err);
+    });
   });
 }
 

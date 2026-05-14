@@ -1,10 +1,15 @@
 import React from "react";
-import { AbsoluteFill, Audio } from "remotion";
+import { AbsoluteFill, Audio, staticFile } from "remotion";
 import { OrientationConfig, LayerDef } from "./types";
 import { SolidBackground } from "./layers/SolidBackground";
 import { GalaxySpiral } from "./layers/GalaxySpiral";
 import { CabinetFrame } from "./layers/CabinetFrame";
 import { TitleImage } from "./layers/TitleImage";
+
+// Resolve an asset src that might be a bare filename (needs staticFile)
+// or already a fully-formed URL (from defaultProps where staticFile was applied).
+const resolveAssetSrc = (src: string): string =>
+  /^(https?:|\/|file:)/.test(src) ? src : staticFile(src);
 
 export interface ShowTemplateProps {
   /** Template layer configuration (from template.json) */
@@ -38,7 +43,7 @@ export const ShowTemplate: React.FC<ShowTemplateProps> = ({
           episodeArtSrc={episodeArtSrc}
         />
       ))}
-      {hasAudio && <Audio src={audioSrc!} />}
+      {hasAudio && <Audio src={resolveAssetSrc(audioSrc!)} />}
     </AbsoluteFill>
   );
 };
