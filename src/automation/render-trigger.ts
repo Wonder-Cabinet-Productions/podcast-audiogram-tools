@@ -198,6 +198,13 @@ async function renderDirect(
       `--props=${propsFile}`,
     ];
 
+    if (process.env.REMOTION_CONCURRENCY) {
+      args.push(`--concurrency=${process.env.REMOTION_CONCURRENCY}`);
+    }
+    if (process.env.REMOTION_TIMEOUT) {
+      args.push(`--timeout=${process.env.REMOTION_TIMEOUT}`);
+    }
+
     const render = spawn("npx", args, {
       stdio: "inherit",
     });
