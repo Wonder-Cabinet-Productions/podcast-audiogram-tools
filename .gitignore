@@ -13,9 +13,9 @@ output/
 .env
 .env.local
 
-# YouTube credentials (sensitive!)
-.youtube-token.json
-.youtube-credentials.json
+# YouTube credentials (sensitive!) — including rotated/backup copies
+.youtube-token.json*
+.youtube-credentials.json*
 
 # Queue state
 .render-queue.json

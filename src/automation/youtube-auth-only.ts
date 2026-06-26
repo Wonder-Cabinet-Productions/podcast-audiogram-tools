@@ -22,7 +22,14 @@ import { URL } from "url";
 config();
 
 const TOKEN_PATH = path.join(__dirname, "../../.youtube-token.json");
-const SCOPES = ["https://www.googleapis.com/auth/youtube.upload"];
+// Broad scope: youtube.upload covers videos.insert/thumbnails/playlists;
+// youtube.force-ssl additionally covers captions.insert (SRT upload) +
+// transcript management. Minted together so one consent serves the full
+// export pipeline (upload + captions). See planning/wc_youtube_metadata_design.md.
+const SCOPES = [
+  "https://www.googleapis.com/auth/youtube.upload",
+  "https://www.googleapis.com/auth/youtube.force-ssl",
+];
 
 function createOAuth2Client() {
   const clientId = process.env.YOUTUBE_CLIENT_ID;
